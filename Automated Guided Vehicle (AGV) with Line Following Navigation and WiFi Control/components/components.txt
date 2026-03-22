@@ -1,0 +1,7 @@
+- ESP8266 NodeMCU
+- L298N Motor Driver
+- IR Sensor Array
+- DC Motors with Wheels
+- Breadboard
+- Battery Supply
+- Chassis

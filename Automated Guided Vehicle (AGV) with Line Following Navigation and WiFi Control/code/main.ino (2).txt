@@ -1,0 +1,136 @@
+// ESP8266 REMOTE CAR
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+// ===== Motor Pins =====
+#define ENA D3
+#define IN1 D4
+#define IN2 D7
+#define ENB D8
+#define IN3 3
+#define IN4 1
+ESP8266WebServer server(80);
+String command;
+int SPEED = 600; // 0–1023 for ESP8266 PWM
+int speed_Coeff = 3;
+// ===== WiFi AP Mode Only (Stable) =====
+const char* ap_ssid = "WiFi_Robot";
+const char* ap_pass = "12345678";
+void setup() {
+ Serial.begin(115200);
+ // Motor pins
+ pinMode(ENA, OUTPUT);
+ pinMode(IN1, OUTPUT);
+ pinMode(IN2, OUTPUT);
+ pinMode(ENB, OUTPUT);
+ pinMode(IN3, OUTPUT);
+ pinMode(IN4, OUTPUT);
+ Stop();
+ // Set PWM frequency
+ analogWriteFreq(1000);
+ analogWriteRange(1023);
+ // Start as Access Point (more stable for robot)
+ WiFi.mode(WIFI_AP);
+ WiFi.softAP(ap_ssid, ap_pass);
+ Serial.println("AP Started");
+ Serial.print("IP: ");
+ Serial.println(WiFi.softAPIP());
+ server.on("/", HTTP_handleRoot);
+ server.begin();
+}
+void loop() {
+ server.handleClient();
+ command = server.arg("State");
+ if (command == "F") Forward();
+ else if (command == "B") Backward();
+ else if (command == "R") TurnRight();
+ else if (command == "L") TurnLeft();
+ else if (command == "G") ForwardLeft();
+ else if (command == "I") ForwardRight();
+ else if (command == "H") BackwardLeft();
+ else if (command == "J") BackwardRight();
+ else if (command == "S") Stop();
+ else if (command == "0") SPEED = 300;
+ else if (command == "1") SPEED = 400;
+ else if (command == "2") SPEED = 500;
+ else if (command == "3") SPEED = 600;
+ else if (command == "4") SPEED = 700;
+ else if (command == "5") SPEED = 800;
+ else if (command == "6") SPEED = 900;
+ else if (command == "7") SPEED = 1023;
+}
+void HTTP_handleRoot() {
+ server.send(200, "text/html", "");
+}
+// ===== MOTOR FUNCTIONS =====
+void Forward() {
+ digitalWrite(IN1, HIGH);
+ digitalWrite(IN2, LOW);
+ digitalWrite(IN3, HIGH);
+ digitalWrite(IN4, LOW);
+ analogWrite(ENA, SPEED);
+ analogWrite(ENB, SPEED);
+}
+void Backward() {
+ digitalWrite(IN1, LOW);
+ digitalWrite(IN2, HIGH);
+ digitalWrite(IN3, LOW);
+ digitalWrite(IN4, HIGH);
+ analogWrite(ENA, SPEED);
+ analogWrite(ENB, SPEED);
+}
+void TurnRight() {
+ digitalWrite(IN1, LOW);
+ digitalWrite(IN2, HIGH);
+ digitalWrite(IN3, HIGH);
+ digitalWrite(IN4, LOW);
+ analogWrite(ENA, SPEED);
+ analogWrite(ENB, SPEED);
+}
+void TurnLeft() {
+ digitalWrite(IN1, HIGH);
+ digitalWrite(IN2, LOW);
+ digitalWrite(IN3, LOW);
+ digitalWrite(IN4, HIGH);
+ analogWrite(ENA, SPEED);
+ analogWrite(ENB, SPEED);
+}
+void ForwardLeft() {
+ digitalWrite(IN1, HIGH);
+ digitalWrite(IN2, LOW);
+ digitalWrite(IN3, HIGH);
+ digitalWrite(IN4, LOW);
+ analogWrite(ENA, SPEED);
+ analogWrite(ENB, SPEED / speed_Coeff);
+}
+void ForwardRight() {
+ digitalWrite(IN1, HIGH);
+ digitalWrite(IN2, LOW);
+ digitalWrite(IN3, HIGH);
+ digitalWrite(IN4, LOW);
+ analogWrite(ENA, SPEED / speed_Coeff);
+ analogWrite(ENB, SPEED);
+}
+void BackwardLeft() {
+ digitalWrite(IN1, LOW);
+ digitalWrite(IN2, HIGH);
+ digitalWrite(IN3, LOW);
+ digitalWrite(IN4, HIGH);
+ analogWrite(ENA, SPEED);
+ analogWrite(ENB, SPEED / speed_Coeff);
+}
+void BackwardRight() {
+ digitalWrite(IN1, LOW);
+ digitalWrite(IN2, HIGH);
+ digitalWrite(IN3, LOW);
+ digitalWrite(IN4, HIGH);
+ analogWrite(ENA, SPEED / speed_Coeff);
+ analogWrite(ENB, SPEED);
+}
+void Stop() {
+ digitalWrite(IN1, LOW);
+ digitalWrite(IN2, LOW);
+ digitalWrite(IN3, LOW);
+ digitalWrite(IN4, LOW);
+ analogWrite(ENA, 0);
+ analogWrite(ENB, 0);
+}

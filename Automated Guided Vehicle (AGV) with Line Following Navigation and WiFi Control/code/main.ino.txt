@@ -1,0 +1,54 @@
+// Line follower code
+#define enR D3
+#define in1 D4
+#define in2 D7
+#define enL D8 // Changed from D3 to D8 based on your first test
+#define in3 3 // RX Pin
+#define in4 1 // TX Pin
+#define SL2 digitalRead(D0)
+#define SL1 digitalRead(D1)
+#define SM digitalRead(D2)
+#define SR1 digitalRead(D5)
+#define SR2 digitalRead(D6)
+void setup() {
+ pinMode(enR, OUTPUT);
+ pinMode(enL, OUTPUT);
+ pinMode(in1, OUTPUT);
+ pinMode(in2, OUTPUT);
+ pinMode(in3, OUTPUT);
+ pinMode(in4, OUTPUT);
+ pinMode(D0, INPUT);
+ pinMode(D1, INPUT);
+ pinMode(D2, INPUT);
+ pinMode(D5, INPUT);
+ pinMode(D6, INPUT);
+ // Match Arduino Nano PWM scale
+ analogWriteRange(150); 
+ // Set Directions Once (since your loop only changes PWM)
+ digitalWrite(in1, HIGH);
+ digitalWrite(in2, LOW);
+ digitalWrite(in3, HIGH);
+ digitalWrite(in4, LOW);
+}
+void loop() {
+ // Center: Move Forward
+ if(SL2==1 && SL1==1 && SM==0 && SR1==1 && SR2==1) {
+ analogWrite(enR, 80); 
+ analogWrite(enL, 80); 
+ }
+ // Turn Right (Sensor detects line on right)
+ else if(SR1==0 || SR2==0) {
+ analogWrite(enR, 0); 
+ analogWrite(enL, 60); 
+ }
+ // Turn Left (Sensor detects line on left)
+ else if(SL1==0 || SL2==0) {
+ analogWrite(enR, 60); 
+ analogWrite(enL, 0); 
+ }
+ else {
+ // Optional: Stop if line is lost
+ analogWrite(enR, 0);
+ analogWrite(enL, 0);
+ }
+}
