@@ -1,0 +1,6 @@
+Arduino Nano
+AD8232 ECG Sensor
+MAX30102 Sensor
+HC-05 Bluetooth Module
+TP4056 Charging Module
+Li-Po Battery
